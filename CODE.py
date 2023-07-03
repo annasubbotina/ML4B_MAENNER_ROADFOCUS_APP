@@ -21,13 +21,13 @@ bus_2= pd.read_json("G:\Мой диск\ML4B\Bus\Bus_Harmoniestr.-Wöhrd.23-05-2
 bus_3= pd.read_json("G:\Мой диск\ML4B\Bus\Bus_Laufer Tor-Rathenauplatz.23-05-23_18-24-45.json")
 bus_4= pd.read_json("G:\Мой диск\ML4B\Bus\Bus_Rathenauplatz-Harmoniestr.23-05-23_18-25-46.json")
 bus_5= pd.read_json("G:\Мой диск\ML4B\Bus\Bus_Wöhrd-Bauvereinstr.23-05-23_18-28-17.json")
-"""bus_6= pd.read_json("Bus_Laufer Tor-Rathenauplatz.23-05-23_18-24-45.json")
+bus_6= pd.read_json("Bus_Laufer Tor-Rathenauplatz.23-05-23_18-24-45.json")
 bus_7= pd.read_json("Bus_Harmoniestr.-Wöhrd.23-05-23_18-27-14.json")
 fahrrad_1 = pd.read_json("Fahrraddata1.json")
 fahrrad_2 = pd.read_json("Fahrraddata2.json")
 fahrrad_3 = pd.read_json("Fahrraddata3.json")
 fahrrad_4 = pd.read_json("Fahrraddata4.json")
-fahrrad_5 = pd.read_json("Fahrraddata6.json")"""
+fahrrad_5 = pd.read_json("Fahrraddata6.json")
 
 #Create dataframes for each type of transport
 bf_df = [bus_1, bus_2, bus_3, bus_4, bus_5, bus_6, bus_7, fahrrad_1, fahrrad_2, fahrrad_3, fahrrad_4, fahrrad_5]
