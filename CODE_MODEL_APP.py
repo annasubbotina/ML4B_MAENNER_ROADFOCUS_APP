@@ -44,7 +44,8 @@ bus_df['z'] = pd.to_numeric(bus_df['z'], errors='coerce')
 
 # Рассчитываем скорость на основе ускорения с помощью метода численного интегрирования (например, метод трапеций)
 bus_df['calculated_speed'] = initial_velocity + bus_df['seconds_elapsed'].diff() * bus_df['z']
-bus_df['calculated_speed'].fillna(bus_df['calculated_speed'].mean(), inplace=True)
+bus_df.loc[:, 'calculated_speed'].fillna(bus_df['calculated_speed'].mean(), inplace=True)
+
 
 # В результате получим столбец 'calculated_speed', который содержит скорость транспортного средства на основе ускорения
 

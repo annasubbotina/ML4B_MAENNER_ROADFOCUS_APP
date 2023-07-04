@@ -24,7 +24,8 @@ def preprocess_data(df):
     df['seconds_elapsed'] = pd.to_numeric(df['seconds_elapsed'], errors='coerce')
     df['z'] = pd.to_numeric(df['z'], errors='coerce')
     df['calculated_speed'] = initial_velocity + df['seconds_elapsed'].diff() * df['z']
-    df['calculated_speed'].fillna(df['calculated_speed'].mean(), inplace=True)
+    df.loc[:, 'calculated_speed'].fillna(df['calculated_speed'].mean(), inplace=True)
+
 
     threshold_acceleration = 0.1
     df['moving'] = df[['x', 'y', 'z']].apply(lambda row: any(abs(row) > threshold_acceleration), axis=1)
