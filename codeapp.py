@@ -58,7 +58,8 @@ def predict_transportation(model, new_data):
     return transportation_mode
 
 
-def handle_message(bot, update):
+def handle_message(update, context):
+    bot = context.bot
     message = update.message.text
 
     if message.startswith('/start'):
@@ -76,51 +77,13 @@ def handle_message(bot, update):
 
     else:
         bot.send_message(chat_id=update.message.chat_id, text="Извините, я не понимаю ваш запрос.")
-
-
-def load_user_data(user_id):
-    # Load user data from file or database based on user_id
-    # Return the data as a DataFrame
-    # This is just a placeholder function, you should implement your own logic here
-    # For example, you can store user data in separate files based on user_id
-    data_file = f"{user_id}.json"
-    try:
-        df = pd.read_json(data_file)
-        return df
-    except FileNotFoundError:
-        return None
-
-
-def main():
-    st.title("MoveMate - Предсказание способа передвижения")
-    st.write("Введите данные о вашем передвижении и мы предскажем, на чем вы едете!")
-
-    file = st.file_uploader("Загрузите файл с данными", type="json")
-    if file is not None:
-        try:
-            df = pd.read_json(file)
-            df = preprocess_data(df)
-            model = train_model(df)
-            st.write("Данные успешно обработаны и модель обучена.")
-        except pd.errors.JSONDecodeError:
-            st.write("Ошибка: Неверный формат файла. Пожалуйста, загрузите JSON-файл.")
-
-    x = st.number_input("Введите значение x", value=0.0)
-    y = st.number_input("Введите значение y", value=0.0)
-    z = st.number_input("Введите значение z", value=0.0)
-    speed = st.number_input("Введите значение скорости", value=0.0)
-
-    new_data = pd.DataFrame({'x': [x], 'y': [y], 'z': [z], 'calculated_speed': [speed]})
-    prediction = predict_transportation(model, new_data)
-    st.write("Результат предсказания:", prediction)
-
-
+        
 if __name__ == "__main__":
     # Set up Telegram bot
-    token = "6318451790:AAF_qeJbT98s9L6V0hs6lAsxxycVg5W0y8k"
+    token = "YOUR_TELEGRAM_BOT_TOKEN"
     updater = Updater(token, use_context=True)
     dispatcher = updater.dispatcher
-    dispatcher.add_handler(MessageHandler(Filters.text, handle_message))
+    dispatcher.add_handler(MessageHandler(None, handle_message))
 
     updater.start_polling()
     st.write("Telegram бот запущен. Ожидание сообщений...")
