@@ -80,7 +80,7 @@ def handle_message(update, context):
         
 if __name__ == "__main__":
     # Set up Telegram bot
-    token = "YOUR_TELEGRAM_BOT_TOKEN"
+    token = "6318451790:AAF_qeJbT98s9L6V0hs6lAsxxycVg5W0y8k"
     updater = Updater(token, use_context=True)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(MessageHandler(None, handle_message))
