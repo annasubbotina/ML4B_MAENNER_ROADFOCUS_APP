@@ -12,13 +12,13 @@ import streamlit as st
 #using pandas library and 'read_json' function to read file as file 
 bus_1= pd.read_json("Bus1_Bauvereinstr.-Technische Hochschule-Dürrenhof.23-05-23_18-29-17.json")
 bus_2= pd.read_json("Bus2_Dürrenhof-Stephanstr.23-05-23_18-31-17.json")
-bus_3= pd.read_json("bus-_Gleitwitzertr._-_Langwasser_Mitte-2023-05-24_12-06-59 2.json")
+"""bus_3= pd.read_json("bus-_Gleitwitzertr._-_Langwasser_Mitte-2023-05-24_12-06-59 2.json")
 bus_4= pd.read_json("Bus_Wöhrd-Bauvereinstr.23-05-23_18-28-17.json")
 bus_5= pd.read_json("Bus_Rathenauplatz-Harmoniestr.23-05-23_18-25-46.json")
 bus_6= pd.read_json("Bus_Laufer Tor-Rathenauplatz.23-05-23_18-24-45.json")
-bus_7= pd.read_json("Bus_Harmoniestr.-Wöhrd.23-05-23_18-27-14.json")
+bus_7= pd.read_json("Bus_Harmoniestr.-Wöhrd.23-05-23_18-27-14.json")"""
 
-bus_df = [bus_1, bus_2, bus_3, bus_4, bus_5, bus_6, bus_7]
+bus_df = [bus_1, bus_2]
 bus_df  = pd.concat(bus_df,ignore_index=True)
 
 # Проверка наличия пропущенных значений в DataFrame
@@ -89,3 +89,46 @@ new_data = pd.DataFrame({'x': [0.1], 'y': [0.2], 'z': [0.3], 'calculated_speed':
 prediction = clf.predict(new_data)
 print("Prediction:", prediction)
 
+def predict_transportation(model, new_data):
+    prediction = model.predict(new_data)
+    transportation_modes = {
+        0: "Автомобиль",
+        1: "Автобус",
+        2: "Метро",
+        3: "Велосипед"
+    }
+    transportation_mode = transportation_modes.get(prediction[0], "Неизвестно")
+    return transportation_mode
+
+
+"""def main():
+    st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
+
+    st.title("MoveMate")
+    st.header("Halte alle auf dem Laufenden")
+    st.write("Um die Funktionen von MoveMate zu nutzen, schauen Sie bitte die Instruktion im linken Menü an!")
+    
+    st.write("Nach dem Lesen der Instruktion und der Konfiguration von SensorLoggerApp und MoveMateBot in Telegram können wir jetzt loslegen!")
+    
+    uploaded_file = st.file_uploader("Datei hochladen", type="json")
+    if uploaded_file is not None:
+        df = pd.read_json(uploaded_file)
+        df = preprocess_data(df)
+        model = train_model(df)
+
+        st.subheader("Пример данных:")
+        st.write(df.head())
+
+        st.subheader("Предсказание способа передвижения:")
+        x = st.number_input("Введите значение x", value=0.0)
+        y = st.number_input("Введите значение y", value=0.0)
+        z = st.number_input("Введите значение z", value=0.0)
+        speed = st.number_input("Введите значение скорости", value=0.0)
+
+        new_data = pd.DataFrame({'x': [x], 'y': [y], 'z': [z], 'calculated_speed': [speed]})
+        prediction = predict_transportation(model, new_data)
+        st.write("Результат предсказания:", prediction)
+
+
+if __name__ == "__main__":
+    main()"""

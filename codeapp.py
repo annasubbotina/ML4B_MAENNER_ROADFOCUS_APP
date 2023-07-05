@@ -7,6 +7,8 @@ from sklearn.metrics import accuracy_score
 import streamlit as st
 from telegram.ext import Updater, CommandHandler, MessageHandler
 from telegram.ext import filters
+import telegram_component
+
 
 def load_data():
     bus_1 = pd.read_json("Bus1_Bauvereinstr.-Technische Hochschule-Dürrenhof.23-05-23_18-29-17.json")
