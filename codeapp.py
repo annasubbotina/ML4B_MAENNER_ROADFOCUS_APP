@@ -5,15 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 import streamlit as st
-from telegram.ext import Updater, MessageHandler
-#from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-#from telegram import Bot, Update, ReplyKeyboardMarkup
-#from telegram import Updater, CommandHandler, MessageHandler, Filters
-#from telegram.ext._updater import Updater
-#from telegram.ext._commandhandler import CommandHandler
-#from telegram.ext._messagehandler import MessageHandler
-#import requests
-
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 def preprocess_data(df):
     # Preprocess data here (remove null values, drop unnecessary columns, calculate speed, etc.)
@@ -34,7 +26,6 @@ def preprocess_data(df):
 
     return df
 
-
 def train_model(df):
     features = ['x', 'y', 'z', 'calculated_speed']
     X = df[features]
@@ -45,11 +36,9 @@ def train_model(df):
     clf.fit(X, y)
     return clf
 
-
 def predict_movement(model, new_data):
     prediction = model.predict(new_data)
     return prediction
-
 
 def predict_transportation(model, new_data):
     prediction = model.predict(new_data)
@@ -61,7 +50,6 @@ def predict_transportation(model, new_data):
     }
     transportation_mode = transportation_modes.get(prediction[0], "Неизвестно")
     return transportation_mode
-
 
 def handle_message(update, context):
     bot = context.bot
@@ -82,15 +70,16 @@ def handle_message(update, context):
 
     else:
         bot.send_message(chat_id=update.message.chat_id, text="Извините, я не понимаю ваш запрос.")
-        
-if __name__ == "__main__":
+
+def main():
     # Set up Telegram bot
-    token = "6318451790:AAF_qeJbT98s9L6V0hs6lAsxxycVg5W0y8k"
-    updater = Updater(token)
+    token = "YOUR_TELEGRAM_BOT_TOKEN"
+    updater = Updater(token, use_context=True)
     dispatcher = updater.dispatcher
-    dispatcher.add_handler(MessageHandler(None, handle_message))
+    dispatcher.add_handler(MessageHandler(Filters.text, handle_message))
 
     updater.start_polling()
     st.write("Telegram бот запущен. Ожидание сообщений...")
-    
+
+if __name__ == "__main__":
     main()
