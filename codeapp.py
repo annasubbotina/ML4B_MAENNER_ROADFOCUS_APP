@@ -94,7 +94,6 @@ def main():
 
         chat_id = 658205471
         bot_token = "6164194815:AAER-xuJ0bGMDlRnRcsvYLPXx-d8smdZJrQ"  
-
         if st.button("Отправить предсказание в Telegram") and chat_id:
             send_telegram_message(transportation, chat_id, bot_token)
             st.write("Сообщение успешно отправлено в Telegram!")

@@ -1,6 +1,5 @@
 #import requests
-import telebot
-import streamlit as st
+
 
 #def get_chat_id(api_token):
     #url = f"https://api.telegram.org/bot{api_token}/getUpdates"
