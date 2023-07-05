@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 import streamlit as st
+from PIL import Image
 
 def load_data():
     bus_1 = pd.read_json("Bus1_Bauvereinstr.-Technische Hochschule-Dürrenhof.23-05-23_18-29-17.json")
@@ -72,8 +73,9 @@ def predict_transportation(model, new_data):
 def main():
     st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
 
-    logo_image = "<img src='logo.jpg' style='float: right;'>"
-    st.markdown(logo_image, unsafe_allow_html=True)
+    logo_image = Image.open('E:\Download\Studium\ML4B\ml4b\ML4B_MAENNER_ROADFOCUS_APP\logo.jpg')
+    logo_image ="style='float: right;'>"
+    st.image(logo_image, unsafe_allow_html=True)
 
     st.title("MoveMate")
     st.header("Halte alle auf dem Laufenden")
@@ -92,37 +94,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-#def main():
-    #st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
-
-    #st.title("MoveMate")
-    ##st.header("Halte alle auf dem Laufenden")
-    #st.write("Um die Funktionen von MoveMate zu nutzen, schauen Sie bitte die Instruktion im linken Menü an!")
-    
-    #st.write("Nach dem Lesen der Instruktion und der Konfiguration von SensorLoggerApp und MoveMateBot in Telegram können wir jetzt loslegen!")
-    
-    #uploaded_file = st.file_uploader("Datei hochladen", type="json")
-    #if uploaded_file is not None:
-        #df = pd.read_json(uploaded_file)
-        #df = preprocess_data(df)
-        #model = train_model(df)
-
-        #st.subheader("Пример данных:")
-        #st.write(df.head())
-
-        #st.subheader("Предсказание способа передвижения:")
-        #x = st.number_input("Введите значение x", value=0.0)
-        #y = st.number_input("Введите значение y", value=0.0)
-        #z = st.number_input("Введите значение z", value=0.0)
-        #speed = st.number_input("Введите значение скорости", value=0.0)
-
-        #new_data = pd.DataFrame({'x': [x], 'y': [y], 'z': [z], 'calculated_speed': [speed]})
-        #prediction = predict_transportation(model, new_data)
-        #st.write("Результат предсказания:", prediction)
-
-
-#if __name__ == "__main__":
-    #main()
