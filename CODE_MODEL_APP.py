@@ -71,6 +71,10 @@ def predict_transportation(model, new_data):
 
 def main():
     st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
+
+    logo_image = "<img src='logo.jpg' style='float: right;'>"
+    st.markdown(logo_image, unsafe_allow_html=True)
+
     st.title("MoveMate")
     st.header("Halte alle auf dem Laufenden")
 
