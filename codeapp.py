@@ -6,9 +6,11 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 import streamlit as st
 from telegram import Bot, Update, ReplyKeyboardMarkup
-from telegram import Updater, CommandHandler, MessageHandler
+#from telegram import Updater, CommandHandler, MessageHandler
 from telegram.ext import filters
 from telegram.ext._updater import Updater
+from telegram.ext._commandhandler import CommandHandler
+from telegram.ext._messagehandler import MessageHandler
 import requests
 
 
