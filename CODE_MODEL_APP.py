@@ -75,7 +75,7 @@ def main():
 
     logo_image = Image.open('E:\Download\Studium\ML4B\ml4b\ML4B_MAENNER_ROADFOCUS_APP\logo.jpg')
     logo_image ="style='float: right;'>"
-    st.image(logo_image, unsafe_allow_html=True)
+    st.image(logo_image)
 
     st.title("MoveMate")
     st.header("Halte alle auf dem Laufenden")
