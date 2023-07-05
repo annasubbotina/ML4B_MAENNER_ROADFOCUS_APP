@@ -6,7 +6,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 import streamlit as st
 from telegram import Bot, Update, ReplyKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import Updater, CommandHandler, MessageHandler
+from telegram.ext import Filters
 import requests
 
 
@@ -87,5 +88,5 @@ if __name__ == "__main__":
 
     updater.start_polling()
     st.write("Telegram бот запущен. Ожидание сообщений...")
-
+    
     main()
