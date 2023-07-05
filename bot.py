@@ -11,9 +11,9 @@ def main(message):
     bot.send_message(message.chat.id, 'Hi! Please press the button below to open MoveMateApp!', reply_markup=markup)
 
 
-@bot.message_handler(commands=['site', 'website'])
-def site(message):
-    webbrowser.open('https://ml4bmaennerroadfocusapp-8svasqzjk18.streamlit.app/')
+#@bot.message_handler(commands=['site', 'website'])
+#def site(message):
+#    webbrowser.open('https://ml4bmaennerroadfocusapp-8svasqzjk18.streamlit.app/')
 
 bot.polling(none_stop=True)
 
