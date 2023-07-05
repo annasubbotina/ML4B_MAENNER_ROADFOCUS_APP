@@ -5,12 +5,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 import streamlit as st
-from telegram import Bot, Update, ReplyKeyboardMarkup
-from telegram import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, MessageHandler
+#from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+#from telegram import Bot, Update, ReplyKeyboardMarkup
+#from telegram import Updater, CommandHandler, MessageHandler, Filters
 #from telegram.ext._updater import Updater
 #from telegram.ext._commandhandler import CommandHandler
 #from telegram.ext._messagehandler import MessageHandler
-import requests
+#import requests
 
 
 def preprocess_data(df):
@@ -84,7 +86,7 @@ def handle_message(update, context):
 if __name__ == "__main__":
     # Set up Telegram bot
     token = "6318451790:AAF_qeJbT98s9L6V0hs6lAsxxycVg5W0y8k"
-    updater = Updater(token, use_context=True)
+    updater = Updater(token)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(MessageHandler(None, handle_message))
 
