@@ -9,10 +9,12 @@ import streamlit as st
 def load_data():
     bus_1 = pd.read_json("Bus1_Bauvereinstr.-Technische Hochschule-Dürrenhof.23-05-23_18-29-17.json")
     bus_2 = pd.read_json("Bus2_Dürrenhof-Stephanstr.23-05-23_18-31-17.json")
-    fahrrad_1 = pd.read.json("E:\Download\Studium\ML4B\ml4b\ML4B_MAENNER_ROADFOCUS_APP\Fahrraddata2.json")
-    ubahn_1 = pd.read.json("E:\Download\Studium\ML4B\ml4b\ML4B_MAENNER_ROADFOCUS_APP\uBahn_Kaulbachplatz_-_Hbf-2023-05-24_06-09-08.json")
+    fahrrad_1 = pd.read.json("Fahrraddata2.json")
+    fahrrad_2 = pd.read.json("Fahrraddata3.json")
+    ubahn_1 = pd.read.json("uBahn_Kaulbachplatz_-_Hbf-2023-05-24_06-09-08.json")
+    ubahn_2 = pd.read.json("Ubahn_Wöhrder Wiese-Hbf-Opernhaus.24-05-23_13-33-39.json")
     # Add other datasets as needed
-    bf_df = pd.concat([bus_1, bus_2, fahrrad_1, ubahn_1], ignore_index=True)
+    bf_df = pd.concat([bus_1, bus_2, fahrrad_1, fahrrad_2, ubahn_1, ubahn_2], ignore_index=True)
     return bf_df
 
 def preprocess_data(df):
