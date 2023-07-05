@@ -73,7 +73,7 @@ def predict_transportation(model, new_data):
 def main():
     st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
 
-    logo_image = Image.open('E:\Download\Studium\ML4B\ml4b\ML4B_MAENNER_ROADFOCUS_APP\logo.jpg')
+    logo_image = Image.open('logo.jpg')
     logo_image ="style='float: right;'>"
     st.image(logo_image)
 
