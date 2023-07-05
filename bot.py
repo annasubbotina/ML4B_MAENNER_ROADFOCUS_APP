@@ -16,6 +16,3 @@ def main(message):
 #    webbrowser.open('https://ml4bmaennerroadfocusapp-8svasqzjk18.streamlit.app/')
 
 bot.polling(none_stop=True)
-
-
-
