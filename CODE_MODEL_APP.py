@@ -65,7 +65,7 @@ def predict_transportation(model, new_data):
         2: "U-Bahn",
         3: "Fahrrad"
     }
-    transportation_mode = transportation_modes.get(prediction[0], "Неизвестно")
+    transportation_mode = transportation_modes.get(prediction[0], "Unbekannt")
     return transportation_mode
 
 
