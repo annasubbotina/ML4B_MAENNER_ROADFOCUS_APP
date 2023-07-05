@@ -92,8 +92,8 @@ def main():
         model = train_model(user_df)
         transportation = predict_transportation(model, user_df)
 
-        chat_id = st.text_input("Введите ID чата в Telegram")
-        bot_token = "6164194815:AAER-xuJ0bGMDlRnRcsvYLPXx-d8smdZJrQ"  # Замените на ваш токен бота Telegram
+        chat_id = 658205471
+        bot_token = "6164194815:AAER-xuJ0bGMDlRnRcsvYLPXx-d8smdZJrQ"  
 
         if st.button("Отправить предсказание в Telegram") and chat_id:
             send_telegram_message(transportation, chat_id, bot_token)
