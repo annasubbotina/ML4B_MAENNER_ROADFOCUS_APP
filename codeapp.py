@@ -5,7 +5,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 import streamlit as st
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler
+from telegram.ext import filters
+
+def load_data():
+    bus_1 = pd.read_json("Bus1_Bauvereinstr.-Technische Hochschule-Dürrenhof.23-05-23_18-29-17.json")
+    bus_2 = pd.read_json("Bus2_Dürrenhof-Stephanstr.23-05-23_18-31-17.json")
+    # Add other datasets as needed
+    bus_df = pd.concat([bus_1, bus_2], ignore_index=True)
+    return bus_df
+
 
 def preprocess_data(df):
     # Preprocess data here (remove null values, drop unnecessary columns, calculate speed, etc.)
@@ -26,6 +35,7 @@ def preprocess_data(df):
 
     return df
 
+
 def train_model(df):
     features = ['x', 'y', 'z', 'calculated_speed']
     X = df[features]
@@ -36,9 +46,11 @@ def train_model(df):
     clf.fit(X, y)
     return clf
 
+
 def predict_movement(model, new_data):
     prediction = model.predict(new_data)
     return prediction
+
 
 def predict_transportation(model, new_data):
     prediction = model.predict(new_data)
@@ -50,36 +62,3 @@ def predict_transportation(model, new_data):
     }
     transportation_mode = transportation_modes.get(prediction[0], "Неизвестно")
     return transportation_mode
-
-def handle_message(update, context):
-    bot = context.bot
-    message = update.message.text
-
-    if message.startswith('/start'):
-        bot.send_message(chat_id=update.message.chat_id, text="Привет! Я бот MoveMate. Отправь мне свои данные о передвижении, и я скажу тебе, на чем ты едешь!")
-
-    elif message.startswith('/predict'):
-        user_id = update.message.from_user.id
-        df = load_user_data(user_id)
-        if df is not None:
-            model = train_model(df)
-            prediction = predict_transportation(model, df)
-            bot.send_message(chat_id=update.message.chat_id, text=f"Ты едешь на: {prediction}")
-        else:
-            bot.send_message(chat_id=update.message.chat_id, text="У меня нет данных о твоем передвижении.")
-
-    else:
-        bot.send_message(chat_id=update.message.chat_id, text="Извините, я не понимаю ваш запрос.")
-
-def main():
-    # Set up Telegram bot
-    token = "YOUR_TELEGRAM_BOT_TOKEN"
-    updater = Updater(token, use_context=True)
-    dispatcher = updater.dispatcher
-    dispatcher.add_handler(MessageHandler(Filters.text, handle_message))
-
-    updater.start_polling()
-    st.write("Telegram бот запущен. Ожидание сообщений...")
-
-if __name__ == "__main__":
-    main()
