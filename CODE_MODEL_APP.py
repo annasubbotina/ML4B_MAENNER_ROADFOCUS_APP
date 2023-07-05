@@ -60,10 +60,10 @@ def predict_transportation(model, new_data):
     X = new_data[features]
     prediction = model.predict(X)
     transportation_modes = {
-        0: "Автомобиль",
-        1: "Автобус",
-        2: "Метро",
-        3: "Велосипед"
+        0: "Auto",
+        1: "Bus",
+        2: "U-Bahn",
+        3: "Fahrrad"
     }
     transportation_mode = transportation_modes.get(prediction[0], "Неизвестно")
     return transportation_mode
@@ -78,7 +78,7 @@ def main():
 
     if uploaded_file is not None:
         user_df = pd.read_json(uploaded_file)
-        user_df = preprocess_data(user_df)  # Исправлено: заменено df на user_df
+        user_df = preprocess_data(user_df) 
         model = train_model(user_df)
         transportation = predict_transportation(model, user_df)
         
