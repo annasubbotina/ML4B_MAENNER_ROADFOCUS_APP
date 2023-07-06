@@ -7,6 +7,8 @@ from sklearn.metrics import accuracy_score
 import streamlit as st
 from PIL import Image
 
+@st.cache_data
+
 def load_data():
     bus_1 = pd.read_json("Bus1_Bauvereinstr.-Technische Hochschule-Dürrenhof.23-05-23_18-29-17.json")
     bus_2 = pd.read_json("Bus2_Dürrenhof-Stephanstr.23-05-23_18-31-17.json")
@@ -74,20 +76,6 @@ def main():
     st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
 
     
-def add_logo():
-    st.markdown(
-        """
-        <style>
-            [data-testid="stSidebarNav"] {
-                background-image: url(https://github.com/annasubbotina/ML4B_MAENNER_ROADFOCUS_APP/blob/main/logo.jpg);
-                background-repeat: no-repeat;
-                padding-top: 120px;
-                background-position: 20px 20px;
-            }  
-            </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
     #logo_image = Image.open('logo.jpg')
     #st.image(logo_image, caption=None)
