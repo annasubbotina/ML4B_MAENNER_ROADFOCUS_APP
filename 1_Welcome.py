@@ -99,19 +99,20 @@ def main():
         st.write("But in order to get started we advise you to read the Instructions section on the left in the menu!")
     with st.container():
         st.write("---")
+        left_column, right_column = st.columns(2)
         lottie_coding = load_lottieurl("https://assets3.lottiefiles.com/packages/lf20_xbf1be8x.json")
-        st.write("We hope you managed to record your movement data. Let's try to determine the type of your transport!")
-        uploaded_file = st.file_uploader("Datei hochladen", type="json")
-        if uploaded_file is not None:
-            user_df = pd.read_json(uploaded_file)
-            user_df = preprocess_data(user_df) 
-            model = train_model(user_df)
-            transportation = predict_transportation(model, user_df)
-            
-            st.write(f"Tranport type: {transportation}")
-        else:
-            st.write("Laden Sie bitte Datei.json hoch!")
-            with right_column:
+        with left_column:
+            st.write("We hope you managed to record your movement data. Let's try to determine the type of your transport!")
+            uploaded_file = st.file_uploader("Datei hochladen", type="json")
+            if uploaded_file is not None:
+                user_df = pd.read_json(uploaded_file)
+                user_df = preprocess_data(user_df) 
+                model = train_model(user_df)
+                transportation = predict_transportation(model, user_df)
+                st.write(f"Tranport type: {transportation}")
+            else:
+                st.write("Laden Sie bitte Datei.json hoch!")
+        with right_column:
                 st_lottie(lottie_coding, height=300, key="coding")
         
 
