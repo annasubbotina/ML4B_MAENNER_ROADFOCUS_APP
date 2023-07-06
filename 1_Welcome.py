@@ -81,12 +81,17 @@ def main():
     #logo_image = Image.open('logo.jpg')
     #st.image(logo_image, caption=None)
 
-    st.title("MoveMate")
-    st.header("Halte alle auf dem Laufenden")
-    st.write("[See our GitHub Repository -->] (https://github.com/or81ynez/MaennerML)")
-    st.write("With our MoveMateApp you will be able to determine the type of transport on which you move.")
-    st.write("But in order to get started we advise you to read the Instructions section on the left in the menu!")
-    st.write("We hope you managed to record your movement data. Let's try to determine the type of your transport!")
+    with st.container():
+        st.title("MoveMate")
+        st.header("Keep everyone on track")
+        st.write("[See our GitHub Repository -->] (https://github.com/or81ynez/MaennerML)")
+    with st.container():
+        st.write("---")
+        st.write("With our MoveMateApp you will be able to determine the type of transport on which you move.")
+        st.write("But in order to get started we advise you to read the Instructions section on the left in the menu!")
+    with st.container():
+        st.write("---")
+        st.write("We hope you managed to record your movement data. Let's try to determine the type of your transport!")
 
     uploaded_file = st.file_uploader("Datei hochladen", type="json")
 
