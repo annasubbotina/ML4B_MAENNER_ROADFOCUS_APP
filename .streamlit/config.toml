@@ -1,6 +1,6 @@
-[server]
-headless = true
-port = $PORT
+#[server]
+$headless = true
+#port = $PORT
 
 [theme]
 
