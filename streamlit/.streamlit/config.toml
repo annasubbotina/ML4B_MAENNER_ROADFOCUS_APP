@@ -1,3 +1,22 @@
 [server]
 headless = true
 port = $PORT
+
+[theme]
+
+# Primary accent for interactive elements
+primaryColor = '#4682B4'
+
+# Background color for the main content area
+backgroundColor = '#B0C4DE'
+
+# Background color for sidebar and most interactive widgets
+secondaryBackgroundColor = '#B0E0E6'
+
+# Color used for almost all text
+textColor = '#FFFFFF'
+
+# Font family for all text in the app, except code blocks
+# Accepted values (serif | sans serif | monospace) 
+# Default: "sans serif"
+font = "sans serif"
