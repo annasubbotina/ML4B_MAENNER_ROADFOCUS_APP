@@ -5,3 +5,5 @@ seaborn
 scikit-learn
 python-telegram-bot
 streamlit_lottie
+torch
+numpy
