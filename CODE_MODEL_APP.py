@@ -74,7 +74,7 @@ def main():
     st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
 
     logo_image = Image.open('logo.jpg')
-    st.image(logo_image, caption=none)
+    st.image(logo_image, caption=None)
 
     st.title("MoveMate")
     st.header("Halte alle auf dem Laufenden")
