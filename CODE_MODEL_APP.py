@@ -89,8 +89,8 @@ def add_logo():
         unsafe_allow_html=True,
     )
 
-    logo_image = Image.open('logo.jpg')
-    st.image(logo_image, caption=None)
+    #logo_image = Image.open('logo.jpg')
+    #st.image(logo_image, caption=None)
 
     st.title("MoveMate")
     st.header("Halte alle auf dem Laufenden")
