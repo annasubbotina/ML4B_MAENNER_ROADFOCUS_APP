@@ -6,6 +6,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 import streamlit as st
 from PIL import Image
+from streamlit_lottie import st_lottie
+import requests
 
 @st.cache_data
 
@@ -76,6 +78,12 @@ def predict_transportation(model, new_data):
 def main():
     st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
 
+    def load_lottieurl(url):
+        r = requests.get(url)
+        if r.status_code != 200:
+            return None
+        return r.json()
+
     st.sidebar.success("Menu")
 
     #logo_image = Image.open('logo.jpg')
@@ -91,19 +99,21 @@ def main():
         st.write("But in order to get started we advise you to read the Instructions section on the left in the menu!")
     with st.container():
         st.write("---")
+        lottie_coding = load_lottieurl("https://assets3.lottiefiles.com/packages/lf20_xbf1be8x.json")
         st.write("We hope you managed to record your movement data. Let's try to determine the type of your transport!")
-
-    uploaded_file = st.file_uploader("Datei hochladen", type="json")
-
-    if uploaded_file is not None:
-        user_df = pd.read_json(uploaded_file)
-        user_df = preprocess_data(user_df) 
-        model = train_model(user_df)
-        transportation = predict_transportation(model, user_df)
+        uploaded_file = st.file_uploader("Datei hochladen", type="json")
+        if uploaded_file is not None:
+            user_df = pd.read_json(uploaded_file)
+            user_df = preprocess_data(user_df) 
+            model = train_model(user_df)
+            transportation = predict_transportation(model, user_df)
+            
+            st.write(f"Tranport type: {transportation}")
+        else:
+            st.write("Laden Sie bitte Datei.json hoch!")
+            with right_column:
+                st_lottie(lottie_coding, height=300, key="coding")
         
-        st.write(f"Tranport type: {transportation}")
-    else:
-        st.write("Laden Sie bitte Datei.json hoch!")
 
 if __name__ == "__main__":
     main()
