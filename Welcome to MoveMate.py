@@ -5,15 +5,20 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 import streamlit as st
-from telegram.ext import Updater, CommandHandler, MessageHandler
-from telegram.ext import filters
+from PIL import Image
+
+@st.cache_data
 
 def load_data():
     bus_1 = pd.read_json("Bus1_Bauvereinstr.-Technische Hochschule-Dürrenhof.23-05-23_18-29-17.json")
     bus_2 = pd.read_json("Bus2_Dürrenhof-Stephanstr.23-05-23_18-31-17.json")
+    fahrrad_1 = pd.read.json("Fahrraddata2.json")
+    fahrrad_2 = pd.read.json("Fahrraddata3.json")
+    ubahn_1 = pd.read.json("uBahn_Kaulbachplatz_-_Hbf-2023-05-24_06-09-08.json")
+    ubahn_2 = pd.read.json("Ubahn_Wöhrder Wiese-Hbf-Opernhaus.24-05-23_13-33-39.json")
     # Add other datasets as needed
-    bus_df = pd.concat([bus_1, bus_2], ignore_index=True)
-    return bus_df
+    bf_df = pd.concat([bus_1, bus_2, fahrrad_1, fahrrad_2, ubahn_1, ubahn_2], ignore_index=True)
+    return bf_df
 
 def preprocess_data(df):
     # Preprocess data here (remove null values, drop unnecessary columns, calculate speed, etc.)
@@ -35,59 +40,60 @@ def preprocess_data(df):
 
     return df
 
+
 def train_model(df):
     features = ['x', 'y', 'z', 'calculated_speed']
     X = df[features]
     y = df['moving_label']
-
-    # Train the model
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     clf = DecisionTreeClassifier()
-    clf.fit(X, y)
+    clf.fit(X_train, y_train)
     return clf
 
-def predict_movement(model, new_data):
-    prediction = model.predict(new_data)
+
+def predict_movement(model, df):
+    features = ['x', 'y', 'z', 'calculated_speed']
+    X = df[features]
+    prediction = model.predict(X)
     return prediction
 
+
 def predict_transportation(model, new_data):
-    prediction = model.predict(new_data)
+    features = ['x', 'y', 'z', 'calculated_speed']
+    X = new_data[features]
+    prediction = model.predict(X)
     transportation_modes = {
-        0: "Автомобиль",
-        1: "Автобус",
-        2: "Метро",
-        3: "Велосипед"
+        0: "Auto",
+        1: "Bus",
+        2: "U-Bahn",
+        3: "Fahrrad"
     }
-    transportation_mode = transportation_modes.get(prediction[0], "Неизвестно")
+    transportation_mode = transportation_modes.get(prediction[0], "Unbekannt")
     return transportation_mode
+
 
 def main():
     st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
 
+    st.sidebar.success("Menu")
+
+    #logo_image = Image.open('logo.jpg')
+    #st.image(logo_image, caption=None)
+
     st.title("MoveMate")
     st.header("Halte alle auf dem Laufenden")
-    st.write("Um die Funktionen von MoveMate zu nutzen, schauen Sie bitte die Instruktion im linken Menü an!")
-    
-    st.write("Nach dem Lesen der Instruktion und der Konfiguration von MoveMateBot in Telegram können wir jetzt loslegen!")
-    
+
     uploaded_file = st.file_uploader("Datei hochladen", type="json")
-    
+
     if uploaded_file is not None:
-        df = pd.read_json(uploaded_file)
-        df = preprocess_data(df)
-        model = train_model(df)
-        return model,df
+        user_df = pd.read_json(uploaded_file)
+        user_df = preprocess_data(user_df) 
+        model = train_model(user_df)
+        transportation = predict_transportation(model, user_df)
+        
+        st.write(f"Tranport type: {transportation}")
     else:
         st.write("Laden Sie bitte Datei.json hoch!")
 
-    movement_prediction = predict_movement(model, df)# Make the prediction
-    transportation = predict_transportation(model, df)
-    
-
-    # Display the result
-    st.write(f"Движение: {bool(movement_prediction[0])}")
-    st.write(f"Способ передвижения пользователя: {transportation}")
-
 if __name__ == "__main__":
-    
     main()
-
