@@ -93,7 +93,7 @@ def main():
         with text_column:
             st.title("MoveMate")
             st.header("Keep everyone on track")
-            st.markdown("[See our GitHub Repository -->] (https://github.com/or81ynez/MaennerML)")
+            st.markdown("See our GitHub Repository ⇒ (https://github.com/or81ynez/MaennerML)")
         with image_column:
             st.image(logo)
 
@@ -107,15 +107,19 @@ def main():
         lottie_coding = load_lottieurl("https://assets3.lottiefiles.com/packages/lf20_xbf1be8x.json")
         with left_column:
             st.write("We hope you managed to record your movement data. Let's try to determine the type of your transport!")
-            uploaded_file = st.file_uploader("Datei hochladen", type="json")
+            
+            uploaded_file = st.file_uploader("Drop it here ⇓", accept_multiple_files=False)
+
             if uploaded_file is not None:
-                user_df = pd.read_json(uploaded_file)
-                user_df = preprocess_data(user_df) 
-                model = train_model(user_df)
-                transportation = predict_transportation(model, user_df)
-                st.write(f"Tranport type: {transportation}")
+                prediction_data = process_data_prediction(uploaded_file)
+                location_data = process_data_location(uploaded_file)
+                st.subheader("Your travel graph")
+                map_data(location_data)
+                tree_predictions = model.predict(prediction_data)
+                st.caption("You are using " + str(tree_predictions) + "!")
+            
             else:
-                st.write("Laden Sie bitte Datei.json hoch!")
+                st.write("Upload a JSON file!")
         with right_column:
                 st_lottie(lottie_coding, height=300, key="coding")
         
