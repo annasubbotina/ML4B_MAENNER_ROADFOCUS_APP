@@ -15,7 +15,7 @@ from PIL import Image
 from streamlit_lottie import st_lottie
 import requests
 
-model_tree = pickle.load(open('Tree_Model.pkl', 'rb'))
+model_tree = ('Tree_Model.pkl')
 model = torch.load(model_tree)
 
 #Functions 
