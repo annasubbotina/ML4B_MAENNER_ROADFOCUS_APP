@@ -71,6 +71,7 @@ def predict_transportation(model, new_data):
     transportation_mode = transportation_modes.get(prediction[0], "Unbekannt")
     return transportation_mode
 
+#Streamlit App code below
 
 def main():
     st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
@@ -82,6 +83,7 @@ def main():
 
     st.title("MoveMate")
     st.header("Halte alle auf dem Laufenden")
+    st.write("[See our GitHub Repository -->] (https://github.com/or81ynez/MaennerML)")
 
     uploaded_file = st.file_uploader("Datei hochladen", type="json")
 
