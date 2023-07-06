@@ -83,16 +83,20 @@ def main():
         if r.status_code != 200:
             return None
         return r.json()
+    
+    logo = Image.open("logo.jpg")
 
     st.sidebar.success("Menu")
 
-    #logo_image = Image.open('logo.jpg')
-    #st.image(logo_image, caption=None)
-
     with st.container():
-        st.title("MoveMate")
-        st.header("Keep everyone on track")
-        st.write("[See our GitHub Repository -->] (https://github.com/or81ynez/MaennerML)")
+        text_column, image_column = st.columns((2,1))
+        with text_column:
+            st.title("MoveMate")
+            st.header("Keep everyone on track")
+            st.markdown("[See our GitHub Repository -->] (https://github.com/or81ynez/MaennerML)")
+        with image_column:
+            st.image(logo)
+
     with st.container():
         st.write("---")
         st.write("With our MoveMateApp you will be able to determine the type of transport on which you move.")
