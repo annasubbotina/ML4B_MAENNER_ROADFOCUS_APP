@@ -73,6 +73,22 @@ def predict_transportation(model, new_data):
 def main():
     st.set_page_config(page_title="MoveMate", page_icon=":oncoming_automobile:", layout="wide", initial_sidebar_state="collapsed")
 
+    
+def add_logo():
+    st.markdown(
+        """
+        <style>
+            [data-testid="stSidebarNav"] {
+                background-image: url(https://github.com/annasubbotina/ML4B_MAENNER_ROADFOCUS_APP/blob/main/logo.jpg);
+                background-repeat: no-repeat;
+                padding-top: 120px;
+                background-position: 20px 20px;
+            }  
+            </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     logo_image = Image.open('logo.jpg')
     st.image(logo_image, caption=None)
 
