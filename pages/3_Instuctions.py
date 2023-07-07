@@ -45,7 +45,7 @@ with st.container():
     with text_column:
         st.write("After installing the application open it and familiarize yourself with its interface.") 
 
-    st.write("For the correct recording of your json file and upload it to our application, follow these steps:")
+    st.subheader("For the correct recording of your json file and upload it to our application, follow these steps:")
 with st.container():
     text_column, image_column = st.columns((2,1))
     with image_column:
