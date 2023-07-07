@@ -9,79 +9,287 @@ from PIL import Image
 from streamlit_lottie import st_lottie
 import requests
 import json
+import numpy as np
+#from sklearn.metrics import mean_squared_error
+import numpy as np 
+from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier
+import folium
+import graphviz
 
 @st.cache_data
 
-def load_data():
-    bus_1 = pd.read_json("Bus1_Bauvereinstr.-Technische Hochschule-Dürrenhof.23-05-23_18-29-17.json")
-    bus_2 = pd.read_json("Bus2_Dürrenhof-Stephanstr.23-05-23_18-31-17.json")
-    fahrrad_1 = pd.read.json("Fahrraddata2.json")
-    fahrrad_2 = pd.read.json("Fahrraddata3.json")
-    ubahn_1 = pd.read.json("uBahn_Kaulbachplatz_-_Hbf-2023-05-24_06-09-08.json")
-    ubahn_2 = pd.read.json("Ubahn_Wöhrder Wiese-Hbf-Opernhaus.24-05-23_13-33-39.json")
-    # Add other datasets as needed
-    bf_df = pd.concat([bus_1, bus_2, fahrrad_1, fahrrad_2, ubahn_1, ubahn_2], ignore_index=True)
-    return bf_df
+#Tranform accelerometer and gyroscope data to one dataframe
+def transform_data_acceleration(file, format):
+    if format == 'json':
+        df = pd.read_json(file)
+    else:
+        df = pd.read_csv(file)  
+        
+    acce = df[df['sensor'] == 'Accelerometer']
+    acce.reset_index(drop=True, inplace=True)   
+    acce = acce.drop(columns =['seconds_elapsed','sensor', 'relativeAltitude', 'pressure', 'altitude', 'speedAccuracy', 'bearingAccuracy', 'latitude', 'altitudeAboveMeanSeaLevel', 'bearing', 'horizontalAccuracy', 'verticalAccuracy', 'longitude', 'speed', 'version', 'device name', 'recording time', 'platform', 'appVersion', 'device id', 'sensors', 'sampleRateMs', 'yaw', 'qx', 'qz', 'roll', 'qw', 'qy', 'pitch'])
+    acce['Magnitude_acce'] = np.sqrt(acce["x"] ** 2 + acce["y"] ** 2 + acce["z"] ** 2)
+    
+    gyro = df[df['sensor'] == 'Gyroscope']
+    gyro.reset_index(drop=True, inplace=True)   
+    gyro = gyro.drop(columns = ['seconds_elapsed','sensor', 'relativeAltitude', 'pressure', 'altitude', 'speedAccuracy', 'bearingAccuracy', 'latitude', 'altitudeAboveMeanSeaLevel', 'bearing', 'horizontalAccuracy', 'verticalAccuracy', 'longitude', 'speed', 'version', 'device name', 'recording time', 'platform', 'appVersion', 'device id', 'sensors', 'sampleRateMs', 'yaw', 'qx', 'qz', 'roll', 'qw', 'qy', 'pitch'])
+    
 
-def preprocess_data(df):
-    # Preprocess data here (remove null values, drop unnecessary columns, calculate speed, etc.)
-    df = df.dropna(subset=['time', 'seconds_elapsed'])
-    df['z'].fillna(df['z'].mean(), inplace=True)
-    df['y'].fillna(df['y'].mean(), inplace=True)
-    df['x'].fillna(df['x'].mean(), inplace=True)
-
-    initial_velocity = 0.0
-    df['seconds_elapsed'] = pd.to_numeric(df['seconds_elapsed'], errors='coerce')
-    df['z'] = pd.to_numeric(df['z'], errors='coerce')
-    df['calculated_speed'] = initial_velocity + df['seconds_elapsed'].diff() * df['z']
-    df.loc[:, 'calculated_speed'].fillna(df['calculated_speed'].mean(), inplace=True)
-
-
-    threshold_acceleration = 0.1
-    df['moving'] = df[['x', 'y', 'z']].apply(lambda row: any(abs(row) > threshold_acceleration), axis=1)
-    df['moving_label'] = df['moving'].astype(int)
-
-    return df
+    for df in [gyro, acce]:
+         df.index = pd.to_datetime(df['time'], unit = 'ns',errors='ignore')
+         df.drop(columns=['time'], inplace=True)
+    #df_new = pd.merge(loc, gyro, suffixes=('_loc', '_gyro'), on='time')
+    df_new = acce.join(gyro, lsuffix = '_acce', rsuffix = '_gyro', how = 'outer').interpolate()
+   
+    #df_new = pd.merge(pd.merge(loc, gyro, suffixes=('_loc', '_gyro'), on='time'), acce, suffixes=('', '_acce'), on='time')
+    #df_new['Type'] = type
+    
+    return df_new
 
 
-def train_model(df):
-    features = ['x', 'y', 'z', 'calculated_speed']
-    X = df[features]
-    y = df['moving_label']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    clf = DecisionTreeClassifier()
-    clf.fit(X_train, y_train)
-    return clf
+#Tranform location from file
+def transform_data_location(file, format):
+    if format == 'json':
+        df = pd.read_json(file)
+    else:
+        df = pd.read_csv(file)   
+
+    location = df[df['sensor'] == 'Location']
+    location.reset_index(drop=True, inplace=True)
+    location = location.drop(columns = ['sensor', 'z', 'y', 'x', 'relativeAltitude', 'pressure', 'version', 
+                                        'device name', 'recording time', 'platform', 'appVersion', 'device id', 'sensors', 'sampleRateMs', 'yaw', 'qx', 'qz', 'roll', 'qw', 'qy', 'pitch'])
+    #Speed using abs to positive
+    
+    location.index = pd.to_datetime(location['time'], unit = 'ns',errors='ignore')
+    location.drop(columns=['time'], inplace=True)
+    #location['Type'] = type
+    return location
+
+# Transform accelleration and gyro data for .csv files
+def transform_data_accelleration_csv(file, format):
+    if format != "csv":
+        print("Use other function for .json data")
+
+    acce = pd.read_csv(file)
+    acce.reset_index(drop=True, inplace=True) 
+    acce['Magnitude_acce'] = np.sqrt(acce["x"] ** 2 + acce["y"] ** 2 + acce["z"] ** 2)
+    acce.drop(["x", "y", "z","seconds_elapsed"], axis=1, inplace=True)
+    for df in [acce]:
+         df.index = pd.to_datetime(df['time'], unit = 'ns',errors='ignore')
+         df.drop(columns=['time'], inplace=True)
+    return acce
+
+def transform_data_gyroscope_csv(file, format):
+    if format != "csv":
+        print("Use other function for .json data")
+    gyro = pd.read_csv(file)
+    gyro.reset_index(drop=True, inplace=True)
+    gyro.drop(['seconds_elapsed'], axis=1, inplace=True)
+    for df in [gyro]:
+         df.index = pd.to_datetime(df['time'], unit = 'ns',errors='ignore')
+         df.drop(columns=['time'], inplace=True)
+    return gyro
+
+def transform_data_accelleration_auto(file):
+    df = pd.read_json(file)
+    acce = df[df['sensor'] == 'Accelerometer']
+    acce.reset_index(drop=True, inplace=True)   
+    acce['Magnitude_acce'] = np.sqrt(acce["x"] ** 2 + acce["y"] ** 2 + acce["z"] ** 2)
+    
+    gyro = df[df['sensor'] == 'Gyroscope']
+    gyro.reset_index(drop=True, inplace=True)   
+
+    for df in [gyro, acce]:
+         df.index = pd.to_datetime(df['time'], unit = 'ns',errors='ignore')
+         df.drop(columns=['time','seconds_elapsed','sensor'], inplace=True)
+    df_new = acce.join(gyro, lsuffix = '_acce', rsuffix = '_gyro', how = 'outer').interpolate()
+    return df_new
+    
+    #Cut data into windows of 5 seconds and calculate min, max, mean and std
+def create_feature_df(df, type):   
+    min_values = df.resample('15s').min(numeric_only=True)
+    max_values = df.resample('15s').max(numeric_only=True)
+    mean_values = df.resample('15s').mean(numeric_only=True)
+    std_values = df.resample('15s').std(numeric_only=True)
+    #columns_to_drop = df.columns.difference(['Magnitude_acce','speed','x_acce', 'x_gyro','y_acce', 'y_gyro', 'z_acce', 'z_gyro','x','y','z'])
+    columns_to_drop = df.columns.difference(['Magnitude_acce', 'x_gyro', 'y_gyro', 'z_gyro'])
+    for df in [min_values, max_values, mean_values, std_values]:
+        df.drop(columns=columns_to_drop, inplace=True)
+    feature_df = pd.merge(pd.merge(min_values, max_values, suffixes = ('_min', '_max'), on = 'time'), pd.merge(mean_values, std_values, suffixes = ('_mean', '_std'), on = 'time'), on = 'time')
+    feature_df['Type'] = type
+
+    return feature_df
+
+#Combine windows data into one DataFrame (only in case there are more than one df)
+def combine_into_df(dfs, type):
+    combined_df = pd.concat([create_feature_df(df, type) for df in dfs])  # Apply cut_into_window to each DataFrame and concatenate them
+    #combined_df.reset_index(drop=True, inplace=True)  # Reset the index of the combined DataFrame
+    return combined_df
+
+#Combine windows data into one DataFrame (only in case there are more than one df)
+def combine_with_loc(dfs_acce, dfs_loc):
+    df_new = dfs_acce.join(dfs_loc, lsuffix = '', rsuffix = '_loc', how = 'outer').interpolate()
+    return df_new
+
+def map_data(df):
+    coords = [(row.latitude, row.longitude) for _, row in df.iterrows()]
+    my_map = folium.Map(location=[df.latitude.mean(), df.longitude.mean()], zoom_start=16)
+    folium.PolyLine(coords, color="blue", weight=5.0).add_to(my_map)
+    return my_map
+
+map_data(ubahn1_loc)
+
+#Read date for ubahn
+ubahn1_df = transform_data_acceleration('Data/Ubahn/Json/ubahn1.json','json')
+ubahn2_df = transform_data_acceleration('Data/Ubahn/Json/ubahn2.json','json')
+ubahn3_df = transform_data_acceleration('Data/Ubahn/Json/ubahn3.json','json')
+ubahn4_df = transform_data_acceleration('Data/Ubahn/Json/ubahn4.json','json')
+ubahn5_df = transform_data_acceleration('Data/Ubahn/Json/ubahn5.json','json')
+ubahn6_df = transform_data_acceleration('Data/Ubahn/Json/ubahn6.json','json')
+ubahn7_df = transform_data_acceleration('Data/Ubahn/Json/ubahn7.json','json')
+
+ubahn1_loc = transform_data_location('Data/Ubahn/Json/ubahn1.json','json')
+ubahn2_loc = transform_data_location('Data/Ubahn/Json/ubahn2.json','json')
+ubahn3_loc = transform_data_location('Data/Ubahn/Json/ubahn3.json','json')
+ubahn4_loc = transform_data_location('Data/Ubahn/Json/ubahn4.json','json')
+ubahn5_loc = transform_data_location('Data/Ubahn/Json/ubahn5.json','json')
+ubahn6_loc = transform_data_location('Data/Ubahn/Json/ubahn6.json','json')
+ubahn7_loc = transform_data_location('Data/Ubahn/Json/ubahn7.json','json')
+
+dfs = [ubahn1_df, ubahn2_df, ubahn3_df, ubahn4_df, ubahn5_df, ubahn6_df, ubahn7_df]
+ubahn_df = combine_into_df(dfs, 'ubahn')
+ubahn_df.head()
+
+ubahn_df.isnull().sum() 
+
+#Read data for fahrrad
+fahrrad2_df = transform_data_acceleration('Data/Fahrrad/Fahrrad2.json','json')
+fahrrad3_df = transform_data_acceleration('Data/Fahrrad/Fahrrad3.json','json')
+fahrrad2_df.head()
+
+fahrrad2_df.head()
+
+dfs = [fahrrad2_df, fahrrad3_df]
+fahrrad_df = combine_into_df(dfs, 'fahrrad')
+fahrrad_df.head()
+
+fahrrad_df.isnull().sum()
+
+def transform_data_acce_special(file, format):
+    if format == 'json':
+        acce = pd.read_json(file)
+    elif format == 'csv':
+        acce = pd.read_csv(file)
+    acce.reset_index(drop=True, inplace=True)   
+    #acce = acce.drop(columns =['sensor', 'relativeAltitude', 'pressure', 'altitude', 'speedAccuracy', 'bearingAccuracy', 'latitude', 'altitudeAboveMeanSeaLevel', 'bearing', 'horizontalAccuracy', 'verticalAccuracy', 'longitude', 'speed', 'version', 'device name', 'recording time', 'platform', 'appVersion', 'device id', 'sensors', 'sampleRateMs', 'yaw', 'qx', 'qz', 'roll', 'qw', 'qy', 'pitch'])
+    acce['Magnitude_acce'] = np.sqrt(acce["x"] ** 2 + acce["y"] ** 2 + acce["z"] ** 2)
+    acce.index = pd.to_datetime(acce['time'], unit = 'ns',errors='ignore')
+    acce.drop(columns=['time','seconds_elapsed'], inplace=True)
+    return acce
+
+auto1 = transform_data_acceleration('Data/Auto/auto1_prep.json','json')
+auto1.head()
+
+auto2 = transform_data_accelleration_auto('Data/Auto/auto2_prep.json')
+auto3 = transform_data_accelleration_auto('Data/Auto/auto3_prep.json')
+auto4 = transform_data_accelleration_auto('Data/Auto/auto4_prep.json')
+auto5 = transform_data_accelleration_auto('Data/Auto/auto5_prep.json')
+
+dfs = [auto1, auto2, auto3, auto4, auto5]
+auto_df = combine_into_df(dfs, 'auto')
+auto_df.head()
+
+auto_df.isnull().sum()
+
+#Tranform accelerometer and gyroscope data to one dataframe
+def transform_data_acceleration_bus(file, format):
+    if format == 'json':
+        df = pd.read_json(file)
+    else:
+        df = pd.read_csv(file)  
+        
+    acce = df[df['sensor'] == 'Accelerometer']
+    acce.reset_index(drop=True, inplace=True)   
+    acce = acce.drop(columns =['seconds_elapsed','sensor', 'altitude', 'speedAccuracy', 'bearingAccuracy', 'latitude',  'bearing', 'horizontalAccuracy', 'verticalAccuracy', 'longitude', 'speed', 'version', 'device name', 'recording time', 'platform', 'appVersion', 'device id', 'sensors', 'sampleRateMs', 'yaw', 'qx', 'qz', 'roll', 'qw', 'qy', 'pitch'])
+    acce['Magnitude_acce'] = np.sqrt(acce["x"] ** 2 + acce["y"] ** 2 + acce["z"] ** 2)
+    
+    gyro = df[df['sensor'] == 'Gyroscope']
+    gyro.reset_index(drop=True, inplace=True)   
+    gyro = gyro.drop(columns = ['seconds_elapsed','sensor', 'altitude', 'speedAccuracy', 'bearingAccuracy', 'latitude',  'bearing', 'horizontalAccuracy', 'verticalAccuracy', 'longitude', 'speed', 'version', 'device name', 'recording time', 'platform', 'appVersion', 'device id', 'sensors', 'sampleRateMs', 'yaw', 'qx', 'qz', 'roll', 'qw', 'qy', 'pitch'])
+    
+
+    for df in [gyro, acce]:
+         df.index = pd.to_datetime(df['time'], unit = 'ns',errors='ignore')
+         df.drop(columns=['time'], inplace=True)
+    #df_new = pd.merge(loc, gyro, suffixes=('_loc', '_gyro'), on='time')
+    df_new = acce.join(gyro, lsuffix = '_acce', rsuffix = '_gyro', how = 'outer').interpolate()
+   
+    #df_new = pd.merge(pd.merge(loc, gyro, suffixes=('_loc', '_gyro'), on='time'), acce, suffixes=('', '_acce'), on='time')
+    #df_new['Type'] = type
+    
+    return df_new
+
+bus1 = transform_data_acceleration_bus('Data/Bus/Bus_Bauvereinstr.-Technische Hochschule-Dürrenhof.23-05-23_18-29-17.json', 'json')
+bus2 = transform_data_acceleration_bus('Data/Bus/Bus_Harmoniestr.-Wöhrd.23-05-23_18-27-14.json','json')
+bus3 = transform_data_acceleration_bus('Data/Bus/Bus_Laufer Tor-Rathenauplatz.23-05-23_18-24-45.json','json')
+bus4 = transform_data_acceleration_bus('Data/Bus/Bus_Rathenauplatz-Harmoniestr.23-05-23_18-25-46.json','json')
+bus5 = transform_data_acceleration_bus('Data/Bus/Bus_Wöhrd-Bauvereinstr.23-05-23_18-28-17.json','json')
+bus6 = transform_data_acceleration_bus('Data/Bus/bus-_Gleitwitzertr._-_Langwasser_Mitte-2023-05-24_12-06-59 2.json','json')
+bus7 = transform_data_acceleration_bus('Data/Bus/Bus2_Dürrenhof-Stephanstr.23-05-23_18-31-17.json','json')
+
+dfs = [bus1, bus2, bus3, bus4, bus5, bus6, bus7]
+bus_df = combine_into_df(dfs, 'bus')
+bus_df.head()
+
+bus_df.isnull().sum()
+
+df_completed = pd.concat([ubahn_df, fahrrad_df, bus_df, auto_df])
+
+df_completed.isnull().sum()
+
+df_completed.head(2)
+
+#separating labels and predictors
+X = df_completed.drop('Type',axis=1)
+y = df_completed['Type'].values
+
+#splitting train (75%) and test set (25%)
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3,random_state=42)
+
+#Gini index as our attribute selection method for the training of decision tree classifier with Sklearn function DecisionTreeClassifier()
+clf_model = DecisionTreeClassifier(criterion="gini", random_state=42,max_depth=5, min_samples_leaf=5)   
+clf_model.fit(X_train,y_train)
+
+#Define target and features using
+target = list(df_completed['Type'].unique())
+feature_names = list(X.columns)
+print(target)
+print(feature_names)
+
+#Train model using Decision Tree Classifier
+classifier_decision_tree = tree.DecisionTreeClassifier()
+classifier_decision_tree.fit(X_train, y_train)
+tree_predictions = classifier_decision_tree.predict(X_train)
+y_predict = clf_model.predict(X_test)
+
+#Calculate accuracy
+from sklearn.metrics import accuracy_score,classification_report,confusion_matrix
+acc = accuracy_score(y_test,y_predict)
+print("Accuracy of Decision Tree Classifier: " + str(acc))
+#print(classification_report(y_test, y_predict))
 
 
-def predict_movement(model, df):
-    features = ['x', 'y', 'z', 'calculated_speed']
-    X = df[features]
-    prediction = model.predict(X)
-    return prediction
+dot_data = tree.export_graphviz(clf_model,
+                                out_file=None, 
+                      feature_names=feature_names,  
+                      class_names=target,  
+                      filled=True, rounded=True,  
+                      special_characters=True)  
+graph = graphviz.Source(dot_data)  
 
-
-def predict_transportation(model, new_data):
-    features = ['x', 'y', 'z', 'calculated_speed']
-    X = new_data[features]
-    prediction = model.predict(X)
-    transportation_modes = {
-        0: "Auto",
-        1: "Bus",
-        2: "Subway",
-        3: "Bike"
-    }
-    transportation_mode = transportation_modes.get(prediction[0], "Unknown")
-    return transportation_mode
-
-#def map_data(df):
-    plt.figure(figsize=(10, 8))
-    plt.plot(df['longitude'], df['latitude'], color='blue', linewidth=5.0)
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
-    plt.title('Map Data')
-    plt.grid(True)
-    plt.show()
+graph
 
 
 #Streamlit App code below

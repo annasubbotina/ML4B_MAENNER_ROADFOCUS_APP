@@ -8,6 +8,8 @@ import streamlit as st
 from PIL import Image
 from streamlit_lottie import st_lottie
 import requests
+import json
+import numpy as np
 
 @st.cache_data
 
@@ -67,11 +69,21 @@ def predict_transportation(model, new_data):
     transportation_modes = {
         0: "Auto",
         1: "Bus",
-        2: "U-Bahn",
-        3: "Fahrrad"
+        2: "Subway",
+        3: "Bike"
     }
-    transportation_mode = transportation_modes.get(prediction[0], "Unbekannt")
+    transportation_mode = transportation_modes.get(prediction[0], "Unknown")
     return transportation_mode
+
+#def map_data(df):
+    plt.figure(figsize=(10, 8))
+    plt.plot(df['longitude'], df['latitude'], color='blue', linewidth=5.0)
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.title('Map Data')
+    plt.grid(True)
+    plt.show()
+
 
 #Streamlit App code below
 
@@ -93,7 +105,7 @@ def main():
         with text_column:
             st.title("MoveMate")
             st.header("Keep everyone on track")
-            st.markdown("[See our GitHub Repository -->] (https://github.com/or81ynez/MaennerML)")
+            st.markdown("See our GitHub Repository ⇒ (https://github.com/or81ynez/MaennerML)")
         with image_column:
             st.image(logo)
 
@@ -107,144 +119,29 @@ def main():
         lottie_coding = load_lottieurl("https://assets3.lottiefiles.com/packages/lf20_xbf1be8x.json")
         with left_column:
             st.write("We hope you managed to record your movement data. Let's try to determine the type of your transport!")
-            uploaded_file = st.file_uploader("Datei hochladen", type="json")
+            
+            uploaded_file = st.file_uploader("Drop it here ⇓", type=["json"])
+
             if uploaded_file is not None:
                 user_df = pd.read_json(uploaded_file)
                 user_df = preprocess_data(user_df) 
                 model = train_model(user_df)
                 transportation = predict_transportation(model, user_df)
-                st.write(f"Tranport type: {transportation}")
+                st.write("You are using " + str(transportation) + "!")
+
+            #if uploaded_file is not None:
+                #prediction_data = process_data_prediction(uploaded_file)
+                #location_data = process_data_location(uploaded_file)
+                #st.subheader("Your travel graph")
+                #map_data(user_df)
+                #tree_predictions = model.predict(prediction_data)
+                #st.caption("You are using " + str(tree_predictions) + "!")
+            
             else:
-                st.write("Laden Sie bitte Datei.json hoch!")
+                st.write("Upload a JSON file!")
         with right_column:
                 st_lottie(lottie_coding, height=300, key="coding")
         
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-#Tranform accelerometer and gyroscope data to one dataframe
-def transform_data_acceleration(file, format):
-    if format == 'json':
-        df = pd.read_json(file)
-    else:
-        df = pd.read_csv(file)  
-        
-    acce = df[df['sensor'] == 'Accelerometer']
-    acce.reset_index(drop=True, inplace=True)   
-    acce = acce.drop(columns =['seconds_elapsed','sensor', 'relativeAltitude', 'pressure', 'altitude', 'speedAccuracy', 'bearingAccuracy', 'latitude', 'altitudeAboveMeanSeaLevel', 'bearing', 'horizontalAccuracy', 'verticalAccuracy', 'longitude', 'speed', 'version', 'device name', 'recording time', 'platform', 'appVersion', 'device id', 'sensors', 'sampleRateMs', 'yaw', 'qx', 'qz', 'roll', 'qw', 'qy', 'pitch'])
-    acce['Magnitude_acce'] = np.sqrt(acce["x"] ** 2 + acce["y"] ** 2 + acce["z"] ** 2)
-    
-    gyro = df[df['sensor'] == 'Gyroscope']
-    gyro.reset_index(drop=True, inplace=True)   
-    gyro = gyro.drop(columns = ['seconds_elapsed','sensor', 'relativeAltitude', 'pressure', 'altitude', 'speedAccuracy', 'bearingAccuracy', 'latitude', 'altitudeAboveMeanSeaLevel', 'bearing', 'horizontalAccuracy', 'verticalAccuracy', 'longitude', 'speed', 'version', 'device name', 'recording time', 'platform', 'appVersion', 'device id', 'sensors', 'sampleRateMs', 'yaw', 'qx', 'qz', 'roll', 'qw', 'qy', 'pitch'])
-    
-
-    for df in [gyro, acce]:
-         df.index = pd.to_datetime(df['time'], unit = 'ns',errors='ignore')
-         df.drop(columns=['time'], inplace=True)
-    #df_new = pd.merge(loc, gyro, suffixes=('_loc', '_gyro'), on='time')
-    df_new = acce.join(gyro, lsuffix = '_acce', rsuffix = '_gyro', how = 'outer').interpolate()
-   
-    #df_new = pd.merge(pd.merge(loc, gyro, suffixes=('_loc', '_gyro'), on='time'), acce, suffixes=('', '_acce'), on='time')
-    #df_new['Type'] = type
-    
-    return df_new
-
-#Tranform location from file
-def transform_data_location(file, format):
-    if format == 'json':
-        df = pd.read_json(file)
-    else:
-        df = pd.read_csv(file)   
-
-    location = df[df['sensor'] == 'Location']
-    location.reset_index(drop=True, inplace=True)
-    location = location.drop(columns = ['sensor', 'z', 'y', 'x', 'relativeAltitude', 'pressure', 'version', 
-                                        'device name', 'recording time', 'platform', 'appVersion', 'device id', 'sensors', 'sampleRateMs', 'yaw', 'qx', 'qz', 'roll', 'qw', 'qy', 'pitch'])
-    #Speed using abs to positive
-    
-    location.index = pd.to_datetime(location['time'], unit = 'ns',errors='ignore')
-    location.drop(columns=['time'], inplace=True)
-    #location['Type'] = type
-    return location
-
-# Transform accelleration and gyro data for .csv files
-def transform_data_accelleration_csv(file, format):
-    if format != "csv":
-        print("Use other function for .json data")
-
-    acce = pd.read_csv(file)
-    acce.reset_index(drop=True, inplace=True) 
-    acce['Magnitude_acce'] = np.sqrt(acce["x"] ** 2 + acce["y"] ** 2 + acce["z"] ** 2)
-    acce.drop(["x", "y", "z","seconds_elapsed"], axis=1, inplace=True)
-    for df in [acce]:
-         df.index = pd.to_datetime(df['time'], unit = 'ns',errors='ignore')
-         df.drop(columns=['time'], inplace=True)
-    return acce
-
-def transform_data_gyroscope_csv(file, format):
-    if format != "csv":
-        print("Use other function for .json data")
-    gyro = pd.read_csv(file)
-    gyro.reset_index(drop=True, inplace=True)
-    gyro.drop(['seconds_elapsed'], axis=1, inplace=True)
-    for df in [gyro]:
-         df.index = pd.to_datetime(df['time'], unit = 'ns',errors='ignore')
-         df.drop(columns=['time'], inplace=True)
-    return gyro
-
-def transform_data_accelleration_auto(file):
-    df = pd.read_json(file)
-    acce = df[df['sensor'] == 'Accelerometer']
-    acce.reset_index(drop=True, inplace=True)   
-    acce['Magnitude_acce'] = np.sqrt(acce["x"] ** 2 + acce["y"] ** 2 + acce["z"] ** 2)
-    
-    gyro = df[df['sensor'] == 'Gyroscope']
-    gyro.reset_index(drop=True, inplace=True)   
-
-    for df in [gyro, acce]:
-         df.index = pd.to_datetime(df['time'], unit = 'ns',errors='ignore')
-         df.drop(columns=['time','seconds_elapsed','sensor'], inplace=True)
-    df_new = acce.join(gyro, lsuffix = '_acce', rsuffix = '_gyro', how = 'outer').interpolate()
-    return df_new
-
-#Cut data into windows of 5 seconds and calculate min, max, mean and std
-def create_feature_df(df, type):   
-    min_values = df.resample('15s').min(numeric_only=True)
-    max_values = df.resample('15s').max(numeric_only=True)
-    mean_values = df.resample('15s').mean(numeric_only=True)
-    std_values = df.resample('15s').std(numeric_only=True)
-    #columns_to_drop = df.columns.difference(['Magnitude_acce','speed','x_acce', 'x_gyro','y_acce', 'y_gyro', 'z_acce', 'z_gyro','x','y','z'])
-    columns_to_drop = df.columns.difference(['Magnitude_acce', 'x_gyro', 'y_gyro', 'z_gyro'])
-    for df in [min_values, max_values, mean_values, std_values]:
-        df.drop(columns=columns_to_drop, inplace=True)
-    feature_df = pd.merge(pd.merge(min_values, max_values, suffixes = ('_min', '_max'), on = 'time'), pd.merge(mean_values, std_values, suffixes = ('_mean', '_std'), on = 'time'), on = 'time')
-    feature_df['Type'] = type
-
-    return feature_df
-
-#Combine windows data into one DataFrame (only in case there are more than one df)
-def combine_into_df(dfs, type):
-    combined_df = pd.concat([create_feature_df(df, type) for df in dfs])  # Apply cut_into_window to each DataFrame and concatenate them
-    #combined_df.reset_index(drop=True, inplace=True)  # Reset the index of the combined DataFrame
-    return combined_df
-
-#Combine windows data into one DataFrame (only in case there are more than one df)
-def combine_with_loc(dfs_acce, dfs_loc):
-    df_new = dfs_acce.join(dfs_loc, lsuffix = '', rsuffix = '_loc', how = 'outer').interpolate()
-    return df_new
-
-def map_data(df):
-    coords = [(row.latitude, row.longitude) for _, row in df.iterrows()]
-    my_map = folium.Map(location=[df.latitude.mean(), df.longitude.mean()], zoom_start=16)
-    folium.PolyLine(coords, color="blue", weight=5.0).add_to(my_map)
-    return my_map
-
-map_data(ubahn1_loc)

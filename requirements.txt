@@ -8,3 +8,5 @@ streamlit_lottie
 numpy
 requests
 telebot
+folium
+graphviz
