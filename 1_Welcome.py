@@ -74,7 +74,7 @@ def predict_transportation(model, new_data):
     transportation_mode = transportation_modes.get(prediction[0], "Unbekannt")
     return transportation_mode
 
-def map_data(df):
+#def map_data(df):
     plt.figure(figsize=(10, 8))
     plt.plot(df['longitude'], df['latitude'], color='blue', linewidth=5.0)
     plt.xlabel('Longitude')
@@ -126,15 +126,15 @@ def main():
                 user_df = preprocess_data(user_df) 
                 model = train_model(user_df)
                 transportation = predict_transportation(model, user_df)
-                st.write(f"Tranport type: {transportation}")
+                st.write("You are using " + str(transportation) + "!")
 
-            if uploaded_file is not None:
-                prediction_data = process_data_prediction(uploaded_file)
-                location_data = process_data_location(uploaded_file)
-                st.subheader("Your travel graph")
-                map_data(location_data)
-                tree_predictions = model.predict(prediction_data)
-                st.caption("You are using " + str(tree_predictions) + "!")
+            #if uploaded_file is not None:
+                #prediction_data = process_data_prediction(uploaded_file)
+                #location_data = process_data_location(uploaded_file)
+                #st.subheader("Your travel graph")
+                #map_data(location_data)
+                #tree_predictions = model.predict(prediction_data)
+                #st.caption("You are using " + str(tree_predictions) + "!")
             
             else:
                 st.write("Upload a JSON file!")
