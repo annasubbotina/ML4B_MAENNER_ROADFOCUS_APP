@@ -119,8 +119,8 @@ def main():
         with left_column:
             st.write("We hope you managed to record your movement data. Let's try to determine the type of your transport!")
             
-            uploaded_file = st.file_uploader("Drop it here ⇓", type= json)
-            
+            uploaded_file = st.file_uploader("Drop it here ⇓", type=["json"])
+
             if uploaded_file is not None:
                 user_df = pd.read_json(uploaded_file)
                 user_df = preprocess_data(user_df) 
