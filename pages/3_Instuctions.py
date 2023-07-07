@@ -89,6 +89,6 @@ with st.container():
 st.write("---")
 st.subheader("Now you can upload your file directly to our app for classifying your vehicle!")
 
-with right_column:
+with left_column:
     st_lottie(lottie_coding, height=300, key="coding")
         
