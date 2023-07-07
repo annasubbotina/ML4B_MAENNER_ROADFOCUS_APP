@@ -20,8 +20,10 @@ def load_data():
     fahrrad_2 = pd.read.json("Fahrraddata3.json")
     ubahn_1 = pd.read.json("uBahn_Kaulbachplatz_-_Hbf-2023-05-24_06-09-08.json")
     ubahn_2 = pd.read.json("Ubahn_Wöhrder Wiese-Hbf-Opernhaus.24-05-23_13-33-39.json")
+    auto_1 = pd.read.json("Auto 9.json")
+    auto_2 = pd.read.json("auto8.json")
     # Add other datasets as needed
-    bf_df = pd.concat([bus_1, bus_2, fahrrad_1, fahrrad_2, ubahn_1, ubahn_2], ignore_index=True)
+    bf_df = pd.concat([bus_1, bus_2, fahrrad_1, fahrrad_2, ubahn_1, ubahn_2, auto_1, auto_2], ignore_index=True)
     return bf_df
 
 def preprocess_data(df):
