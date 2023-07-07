@@ -132,7 +132,7 @@ def main():
                 #prediction_data = process_data_prediction(uploaded_file)
                 #location_data = process_data_location(uploaded_file)
                 #st.subheader("Your travel graph")
-                #map_data(location_data)
+                #map_data(user_df)
                 #tree_predictions = model.predict(prediction_data)
                 #st.caption("You are using " + str(tree_predictions) + "!")
             
