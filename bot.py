@@ -1,5 +1,5 @@
 import telebot
-import webbrowser
+#import webbrowser
 from telebot import types
 
 bot = telebot.TeleBot('6164194815:AAER-xuJ0bGMDlRnRcsvYLPXx-d8smdZJrQ')
@@ -13,6 +13,6 @@ def main(message):
 
 #@bot.message_handler(commands=['site', 'website'])
 #def site(message):
-#    webbrowser.open('https://ml4bmaennerroadfocusapp-8svasqzjk18.streamlit.app/')
+#    webbrowser.open('https://ml4bmaennerroadfocusapp-i9svonu37js.streamlit.app/')
 
 bot.polling(none_stop=True)
