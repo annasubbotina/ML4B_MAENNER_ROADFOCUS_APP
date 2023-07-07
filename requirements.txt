@@ -1,8 +1,14 @@
 streamlit
 pandas
 matplotlib
+matplotlib.pyplot
 seaborn
 scikit-learn
 python-telegram-bot
 streamlit_lottie
+json
 numpy
+sklearn.tree
+sklearn.metrics
+PIL
+requests
