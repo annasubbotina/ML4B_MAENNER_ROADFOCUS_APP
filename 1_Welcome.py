@@ -73,6 +73,16 @@ def predict_transportation(model, new_data):
     transportation_mode = transportation_modes.get(prediction[0], "Unbekannt")
     return transportation_mode
 
+def map_data(df):
+    plt.figure(figsize=(10, 8))
+    plt.plot(df['longitude'], df['latitude'], color='blue', linewidth=5.0)
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.title('Map Data')
+    plt.grid(True)
+    plt.show()
+
+
 #Streamlit App code below
 
 def main():
@@ -109,6 +119,13 @@ def main():
             st.write("We hope you managed to record your movement data. Let's try to determine the type of your transport!")
             
             uploaded_file = st.file_uploader("Drop it here ⇓", accept_multiple_files=False)
+            
+            if uploaded_file is not None:
+                user_df = pd.read_json(uploaded_file)
+                user_df = preprocess_data(user_df) 
+                model = train_model(user_df)
+                transportation = predict_transportation(model, user_df)
+                st.write(f"Tranport type: {transportation}")
 
             if uploaded_file is not None:
                 prediction_data = process_data_prediction(uploaded_file)
