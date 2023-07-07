@@ -68,10 +68,10 @@ def predict_transportation(model, new_data):
     transportation_modes = {
         0: "Auto",
         1: "Bus",
-        2: "U-Bahn",
-        3: "Fahrrad"
+        2: "Subway",
+        3: "Bike"
     }
-    transportation_mode = transportation_modes.get(prediction[0], "Unbekannt")
+    transportation_mode = transportation_modes.get(prediction[0], "Unknown")
     return transportation_mode
 
 #def map_data(df):
